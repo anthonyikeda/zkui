@@ -95,7 +95,7 @@ public class Import extends HttpServlet {
 
                 } else {
                     uploadFileName = item.getName();
-                    sbFile.append(item.getString());
+                    sbFile.append(item.getString("UTF-8"));
                 }
             }
 
@@ -112,7 +112,7 @@ public class Import extends HttpServlet {
             } else {
                 logger.debug("Upload file Processing " + uploadFileName);
                 dao.insertHistory((String) request.getSession().getAttribute("authName"), request.getRemoteAddr(), "Uploading File: " + uploadFileName + "<br/>" + "Overwrite: " + scmOverwrite);
-                inpStream = new ByteArrayInputStream(sbFile.toString().getBytes());
+                inpStream = new ByteArrayInputStream(sbFile.toString().getBytes("UTF-8"));
             }
 
             // open the stream and put it into BufferedReader
@@ -136,7 +136,7 @@ public class Import extends HttpServlet {
             }
             br.close();
 
-            ZooKeeperUtil.INSTANCE.importData(importFile, Boolean.valueOf(scmOverwrite), ServletUtil.INSTANCE.getZookeeper(request, response, zkServerLst[0]));
+            ZooKeeperUtil.INSTANCE.importData(importFile, Boolean.valueOf(scmOverwrite), ServletUtil.INSTANCE.getZookeeper(request, response, zkServerLst[0], globalProps));
             for (String line : importFile) {
                 if (line.startsWith("-")) {
                     dao.insertHistory((String) request.getSession().getAttribute("authName"), request.getRemoteAddr(), "File: " + uploadFileName + ", Deleting Entry: " + line);
